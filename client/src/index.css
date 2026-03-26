@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+:root {
+  --maroon: #9B1B4B;
+  --maroon-dark: #7a1539;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+}

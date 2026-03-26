@@ -1,14 +1,21 @@
-# Dependencies
-client/node_modules
-server/node_modules
+# Root
+node_modules/
+package-lock.json
 
-# Environment variables
-server/.env
+# Client
+client/node_modules/
+client/dist/
 client/.env
 
-# Build output
-client/dist
+# Server
+server/node_modules/
+server/.env
+server/uploads/
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

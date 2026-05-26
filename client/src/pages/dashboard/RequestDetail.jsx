@@ -224,7 +224,7 @@ const RequestDetail = () => {
               </span>
             </div>
             <a
-              href={`http://localhost:5000/uploads/${request.letter_proof}`}
+              href={request.letter_proof}
               target="_blank"
               rel="noreferrer"
               className="text-sm font-medium hover:underline mt-1 

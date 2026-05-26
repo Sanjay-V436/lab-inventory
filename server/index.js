@@ -9,7 +9,7 @@ const app = express();
 // Middleware
 app.use(cors({ origin: process.env.CLIENT_URL }));
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Files stored on Cloudinary — no local /uploads needed
 
 // Test route
 app.get('/', (req, res) => {

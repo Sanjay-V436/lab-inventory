@@ -25,6 +25,11 @@ services:
       DATABASE_URL: postgresql://postgres:sanjay2006@db:5432/lab_inventory
       JWT_SECRET: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJsYWJhZG1pbiIsImlhdCI6MTc3MzUwNTYzMCwiZXhwIjoxNzczNTM0NDMwfQ.VGvEhB3KHu9iRiFiZZWeQPzNVdATIIQtgmaUpaH3lBM
       CLIENT_URL: http://localhost
+      CLOUDINARY_CLOUD_NAME: dtuueykhx
+      CLOUDINARY_API_KEY: 377183914961547
+      CLOUDINARY_API_SECRET: ZHOLaNhqvTz6vCxQKaSH8VhCjFs
+    volumes:
+      - uploads_data:/app/uploads
     ports:
       - "5000:5000"
 
@@ -39,3 +44,4 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:

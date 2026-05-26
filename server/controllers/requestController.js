@@ -132,7 +132,7 @@ const createRequest = async (req, res) => {
       items
     } = req.body;
 
-    const letter_proof = req.file ? req.file.filename : null;
+    const letter_proof = req.file ? req.file.path : null;
 
     // Validate required fields
     if (!student_name || !roll_no || !mentor_name || 

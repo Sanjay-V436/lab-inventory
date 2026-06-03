@@ -28,6 +28,8 @@ services:
       CLOUDINARY_CLOUD_NAME: dtuueykhx
       CLOUDINARY_API_KEY: 377183914961547
       CLOUDINARY_API_SECRET: ZHOLaNhqvTz6vCxQKaSH8VhCjFs
+      EMAIL_USER: rhisclab@gmail.com
+      EMAIL_PASS: wwyh wnow bchc gbmz
     volumes:
       - uploads_data:/app/uploads
     ports:

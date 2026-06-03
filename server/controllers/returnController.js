@@ -1,6 +1,5 @@
 const db = require('../config/db');
 
-// GET all accepted requests (pending return)
 const getAllReturns = async (req, res) => {
   try {
     const {
@@ -27,7 +26,6 @@ const getAllReturns = async (req, res) => {
     }
 
     const whereClause = 'WHERE ' + conditions.join(' AND ');
-
     const orderClause = sort === 'oldest'
       ? 'ORDER BY r.created_at ASC'
       : sort === 'return_date'
@@ -47,9 +45,7 @@ const getAllReturns = async (req, res) => {
     `;
     values.push(limit, offset);
 
-    const countQuery = `
-      SELECT COUNT(*) FROM requests r ${whereClause}
-    `;
+    const countQuery = `SELECT COUNT(*) FROM requests r ${whereClause}`;
     const countValues = values.slice(0, -2);
 
     const [returns, countResult] = await Promise.all([
@@ -69,21 +65,17 @@ const getAllReturns = async (req, res) => {
   }
 };
 
-// GET single return detail
 const getReturnById = async (req, res) => {
   try {
     const { requestId } = req.params;
 
     const request = await db.query(
-      `SELECT * FROM requests WHERE id = $1 
-       AND status = 'accepted'`,
+      `SELECT * FROM requests WHERE id = $1 AND status = 'accepted'`,
       [requestId]
     );
 
     if (request.rows.length === 0) {
-      return res.status(404).json({ 
-        error: 'Accepted request not found' 
-      });
+      return res.status(404).json({ error: 'Accepted request not found' });
     }
 
     const items = await db.query(
@@ -100,49 +92,37 @@ const getReturnById = async (req, res) => {
       [requestId]
     );
 
-    res.json({
-      ...request.rows[0],
-      items: items.rows
-    });
+    res.json({ ...request.rows[0], items: items.rows });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
 
-// POST submit return
 const submitReturn = async (req, res) => {
   try {
     const { requestId } = req.params;
     const { remarks, items } = req.body;
 
-    // Check request exists and is accepted
     const request = await db.query(
-      `SELECT * FROM requests WHERE id = $1 
-       AND status = 'accepted'`,
+      `SELECT * FROM requests WHERE id = $1 AND status = 'accepted'`,
       [requestId]
     );
 
     if (request.rows.length === 0) {
-      return res.status(404).json({ 
-        error: 'Accepted request not found' 
-      });
+      return res.status(404).json({ error: 'Accepted request not found' });
     }
 
-    // Create return record
     const newReturn = await db.query(
-      `INSERT INTO returns (request_id, remarks) 
-       VALUES ($1, $2) RETURNING *`,
+      `INSERT INTO returns (request_id, remarks) VALUES ($1, $2) RETURNING *`,
       [requestId, remarks || null]
     );
 
     const returnId = newReturn.rows[0].id;
 
-    // Process each item
     for (const item of items) {
-      const { request_item_id, condition, remarks: itemRemarks } = item;
+      const { request_item_id, condition, remarks: itemRemarks, qty_returned } = item;
 
-      // Save return item
       await db.query(
         `INSERT INTO return_items 
           (return_id, request_item_id, condition, remarks)
@@ -150,27 +130,19 @@ const submitReturn = async (req, res) => {
         [returnId, request_item_id, condition, itemRemarks || null]
       );
 
-      // If returned → add stock back
-      // If damaged → no stock change
-      if (condition === 'returned') {
+      // Add only qty_returned back to stock
+      if (qty_returned > 0) {
         await db.query(
           `UPDATE components 
-           SET stock = stock + (
-             SELECT quantity_approved 
-             FROM request_items 
-             WHERE id = $1
-           )
+           SET stock = stock + $1
            WHERE id = (
-             SELECT component_id 
-             FROM request_items 
-             WHERE id = $1
+             SELECT component_id FROM request_items WHERE id = $2
            )`,
-          [request_item_id]
+          [qty_returned, request_item_id]
         );
       }
     }
 
-    // Update request status to returned
     await db.query(
       `UPDATE requests SET status = $1 WHERE id = $2`,
       ['returned', requestId]
@@ -183,8 +155,4 @@ const submitReturn = async (req, res) => {
   }
 };
 
-module.exports = {
-  getAllReturns,
-  getReturnById,
-  submitReturn
-};
+module.exports = { getAllReturns, getReturnById, submitReturn };

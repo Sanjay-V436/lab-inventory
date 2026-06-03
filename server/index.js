@@ -25,6 +25,7 @@ app.use('/api/history',    require('./routes/history'));
 // app.use('/api/purchases',  require('./routes/purchases'));
 
 const PORT = process.env.PORT || 5000;
+require('./jobs/returnReminder');
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

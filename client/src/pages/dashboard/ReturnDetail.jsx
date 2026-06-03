@@ -31,12 +31,12 @@ const ReturnDetail = () => {
         const res = await api.get(`/returns/${id}`);
         setRequest(res.data);
 
-        // Initialize all items as returned
         const initial = {};
         res.data.items.forEach((item) => {
           initial[item.id] = {
             condition: 'returned',
             remarks: '',
+            qty_returned: item.quantity_approved,
           };
         });
         setItemConditions(initial);
@@ -65,7 +65,6 @@ const ReturnDetail = () => {
   };
 
   const handleSubmit = async () => {
-    // Validate remarks for damaged items
     for (const item of request.items) {
       const condition = itemConditions[item.id];
       if (condition?.condition === 'damaged' && !condition?.remarks?.trim()) {
@@ -78,6 +77,7 @@ const ReturnDetail = () => {
       request_item_id: item.id,
       condition: itemConditions[item.id]?.condition || 'returned',
       remarks: itemConditions[item.id]?.remarks || '',
+      qty_returned: itemConditions[item.id]?.qty_returned ?? item.quantity_approved,
     }));
 
     setSubmitting(true);
@@ -108,7 +108,6 @@ const ReturnDetail = () => {
   return (
     <div>
 
-      {/* Back button */}
       <button
         onClick={() => navigate('/dashboard/returns')}
         className="flex items-center gap-2 text-sm text-gray-500
@@ -118,78 +117,42 @@ const ReturnDetail = () => {
         Back to Returns
       </button>
 
-      {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-800">
-          Process Return
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Ref: {request.ref_id}
-        </p>
+        <h1 className="text-xl font-bold text-gray-800">Process Return</h1>
+        <p className="text-sm text-gray-500 mt-1">Ref: {request.ref_id}</p>
       </div>
 
       {/* Student Info Card */}
-      <div className="bg-white rounded-xl shadow-sm border
-                      border-gray-200 p-6 mb-6">
-        <h2 className="text-sm font-bold text-gray-700 mb-4
-                       uppercase tracking-wider">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h2 className="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider">
           Student Information
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {[
-            {
-              icon: <User size={15} />,
-              label: 'Student Name',
-              value: request.student_name,
-            },
-            {
-              icon: <Hash size={15} />,
-              label: 'Roll Number',
-              value: request.roll_no,
-            },
-            {
-              icon: <Building size={15} />,
-              label: 'Department',
-              value: request.department,
-            },
-            {
-              icon: <GraduationCap size={15} />,
-              label: 'Mentor',
-              value: request.mentor_name,
-            },
-            {
-              icon: <Mail size={15} />,
-              label: 'Email',
-              value: request.email,
-            },
-            {
-              icon: <Calendar size={15} />,
-              label: 'Return Date',
-              value: formatDate(request.return_date),
-            },
+            { icon: <User size={15} />, label: 'Student Name', value: request.student_name },
+            { icon: <Hash size={15} />, label: 'Roll Number', value: request.roll_no },
+            { icon: <Building size={15} />, label: 'Department', value: request.department },
+            { icon: <GraduationCap size={15} />, label: 'Mentor', value: request.mentor_name },
+            { icon: <Mail size={15} />, label: 'Email', value: request.email },
+            { icon: <Calendar size={15} />, label: 'Return Date', value: formatDate(request.return_date) },
           ].map((info) => (
             <div key={info.label} className="flex flex-col gap-1">
               <div className="flex items-center gap-1.5 text-gray-400">
                 {info.icon}
-                <span className="text-xs font-medium uppercase
-                                 tracking-wider">
+                <span className="text-xs font-medium uppercase tracking-wider">
                   {info.label}
                 </span>
               </div>
-              <p className="text-sm font-semibold text-gray-800 pl-5">
-                {info.value}
-              </p>
+              <p className="text-sm font-semibold text-gray-800 pl-5">{info.value}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Components Return Table */}
-      <div className="bg-white rounded-xl shadow-sm border
-                      border-gray-200 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
         <div className="px-6 pt-4 pb-3 border-b border-gray-200">
-          <h2 className="text-sm font-bold text-gray-700 uppercase
-                         tracking-wider">
+          <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider">
             Component Conditions
           </h2>
         </div>
@@ -201,14 +164,14 @@ const ReturnDetail = () => {
                 {[
                   'Component Name',
                   'Qty Approved',
+                  'Qty Returned',
                   'Condition',
                   'Remarks',
                 ].map((col) => (
                   <th
                     key={col}
-                    className="text-left text-xs font-semibold
-                               text-gray-500 px-6 py-3 uppercase
-                               tracking-wider"
+                    className="text-left text-xs font-semibold text-gray-500 
+                               px-6 py-3 uppercase tracking-wider"
                   >
                     {col}
                   </th>
@@ -224,12 +187,10 @@ const ReturnDetail = () => {
                 return (
                   <tr
                     key={item.id}
-                    className="border-b border-gray-50
-                               hover:bg-gray-50 transition-colors"
+                    className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
                   >
                     {/* Component Name */}
-                    <td className="px-6 py-4 text-sm font-medium
-                                   text-gray-800">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
                       {item.component_name}
                     </td>
 
@@ -238,16 +199,38 @@ const ReturnDetail = () => {
                       {item.quantity_approved}
                     </td>
 
+                    {/* Qty Returned */}
+                    <td className="px-6 py-4">
+                      <input
+                        type="number"
+                        min={0}
+                        max={item.quantity_approved}
+                        value={condition?.qty_returned ?? item.quantity_approved}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (isNaN(val) || val < 0) return;
+                          if (val > item.quantity_approved) {
+                            toast.error(`Max is ${item.quantity_approved}`);
+                            return;
+                          }
+                          setItemConditions((prev) => ({
+                            ...prev,
+                            [item.id]: { ...prev[item.id], qty_returned: val },
+                          }));
+                        }}
+                        className="w-20 border border-gray-200 rounded-lg px-3 
+                                   py-1.5 text-sm text-center focus:outline-none 
+                                   focus:ring-2 bg-gray-50"
+                      />
+                    </td>
+
                     {/* Condition Toggle */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() =>
-                            handleConditionChange(item.id, 'returned')
-                          }
-                          className={`flex items-center gap-1.5 px-3 
-                                      py-1.5 rounded-lg text-xs 
-                                      font-semibold transition-all border ${
+                          onClick={() => handleConditionChange(item.id, 'returned')}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg 
+                                      text-xs font-semibold transition-all border ${
                             isReturned
                               ? 'bg-green-500 text-white border-green-500'
                               : 'bg-white text-gray-500 border-gray-200 hover:border-green-300'
@@ -257,12 +240,9 @@ const ReturnDetail = () => {
                           Returned
                         </button>
                         <button
-                          onClick={() =>
-                            handleConditionChange(item.id, 'damaged')
-                          }
-                          className={`flex items-center gap-1.5 px-3 
-                                      py-1.5 rounded-lg text-xs 
-                                      font-semibold transition-all border ${
+                          onClick={() => handleConditionChange(item.id, 'damaged')}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg 
+                                      text-xs font-semibold transition-all border ${
                             !isReturned
                               ? 'bg-red-500 text-white border-red-500'
                               : 'bg-white text-gray-500 border-gray-200 hover:border-red-300'
@@ -284,19 +264,15 @@ const ReturnDetail = () => {
                             : 'Optional remarks...'
                         }
                         value={condition?.remarks || ''}
-                        onChange={(e) =>
-                          handleRemarksChange(item.id, e.target.value)
-                        }
-                        className={`w-full border rounded-lg px-3 py-1.5 
-                                    text-sm focus:outline-none focus:ring-2
-                                    bg-gray-50 ${
+                        onChange={(e) => handleRemarksChange(item.id, e.target.value)}
+                        className={`w-full border rounded-lg px-3 py-1.5 text-sm 
+                                    focus:outline-none focus:ring-2 bg-gray-50 ${
                           !isReturned
                             ? 'border-red-200 focus:ring-red-100'
                             : 'border-gray-200'
                         }`}
                       />
                     </td>
-
                   </tr>
                 );
               })}
@@ -314,12 +290,11 @@ const ReturnDetail = () => {
             onChange={(e) => setOverallRemarks(e.target.value)}
             placeholder="Any general remarks about this return..."
             rows={3}
-            className="w-full border border-gray-200 rounded-lg px-4
-                       py-2.5 text-sm text-gray-800 bg-gray-50
-                       focus:outline-none focus:ring-2 resize-none"
+            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 
+                       text-sm text-gray-800 bg-gray-50 focus:outline-none 
+                       focus:ring-2 resize-none"
           />
         </div>
-
       </div>
 
       {/* Submit Button */}
@@ -327,9 +302,9 @@ const ReturnDetail = () => {
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="px-8 py-2.5 rounded-xl text-sm font-semibold
-                     text-white transition-all hover:opacity-90
-                     disabled:opacity-60 disabled:cursor-not-allowed"
+          className="px-8 py-2.5 rounded-xl text-sm font-semibold text-white 
+                     transition-all hover:opacity-90 disabled:opacity-60 
+                     disabled:cursor-not-allowed"
           style={{ backgroundColor: '#9B1B4B' }}
         >
           {submitting ? 'Submitting...' : 'Submit Return'}

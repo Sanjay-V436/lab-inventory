@@ -1,26 +1,19 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // SSL
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const FROM = 'Lab Inventory <onboarding@resend.dev>';
 
 // 1. Email to student — request submitted
 const sendRequestSubmittedEmail = async (student, refId, items) => {
   const itemRows = items.map(item =>
     `<tr>
-      <td style="padding:8px;border:1px solid #eee">${item.component_name || item.name}</td>
+      <td style="padding:8px;border:1px solid #eee">${item.name}</td>
       <td style="padding:8px;border:1px solid #eee;text-align:center">${item.quantity}</td>
     </tr>`
   ).join('');
 
-  await transporter.sendMail({
-    from: `"Lab Inventory" <${process.env.EMAIL_USER}>`,
+  await resend.emails.send({
+    from: FROM,
     to: student.email,
     subject: `Request Submitted — ${refId}`,
     html: `
@@ -49,14 +42,14 @@ const sendRequestSubmittedEmail = async (student, refId, items) => {
 const sendNewRequestToAdmin = async (student, refId, items) => {
   const itemRows = items.map(item =>
     `<tr>
-      <td style="padding:8px;border:1px solid #eee">${item.component_name || item.name}</td>
+      <td style="padding:8px;border:1px solid #eee">${item.name}</td>
       <td style="padding:8px;border:1px solid #eee;text-align:center">${item.quantity}</td>
     </tr>`
   ).join('');
 
-  await transporter.sendMail({
-    from: `"Lab Inventory" <${process.env.EMAIL_USER}>`,
-    to: process.env.EMAIL_USER,
+  await resend.emails.send({
+    from: FROM,
+    to: process.env.ADMIN_EMAIL,
     subject: `New Request — ${refId} from ${student.name}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
@@ -96,8 +89,8 @@ const sendRequestAcceptedEmail = async (studentEmail, studentName, refId, items)
     </tr>`
   ).join('');
 
-  await transporter.sendMail({
-    from: `"Lab Inventory" <${process.env.EMAIL_USER}>`,
+  await resend.emails.send({
+    from: FROM,
     to: studentEmail,
     subject: `Request Accepted — ${refId}`,
     html: `
@@ -130,8 +123,8 @@ const sendReturnReminderEmail = async (studentEmail, studentName, refId, returnD
     </tr>`
   ).join('');
 
-  await transporter.sendMail({
-    from: `"Lab Inventory" <${process.env.EMAIL_USER}>`,
+  await resend.emails.send({
+    from: FROM,
     to: studentEmail,
     subject: `Return Reminder — ${refId} due ${returnDate}`,
     html: `
@@ -149,7 +142,7 @@ const sendReturnReminderEmail = async (studentEmail, studentName, refId, returnD
           <tbody>${itemRows}</tbody>
         </table>
         <p><b>Reference ID:</b> ${refId}</p>
-        <p style="color:red;font-size:13px">Please return the components on time to avoid penalties.</p>
+        <p style="color:red;font-size:13px">Please return the components on time.</p>
       </div>
     `,
   });

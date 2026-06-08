@@ -24,22 +24,31 @@ app.use('/api/returns',    require('./routes/returns'));
 app.use('/api/history',    require('./routes/history'));
 // app.use('/api/purchases',  require('./routes/purchases'));
 app.get('/test-email', async (req, res) => {
-  const { Resend } = require('resend');
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  
-  console.log('API KEY:', process.env.RESEND_API_KEY);
-  
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.BREVO_USER,
+      pass: process.env.BREVO_PASS,
+    },
+  });
+
+  console.log('BREVO_USER:', process.env.BREVO_USER);
+  console.log('BREVO_PASS:', process.env.BREVO_PASS ? 'exists' : 'MISSING');
+
   try {
-    const result = await resend.emails.send({
-      from: 'Lab Inventory <onboarding@resend.dev>',
-      to: 'ch.en.u4cce2041@ch.students.amrita.edu',
-      subject: 'Test',
-      html: '<p>Test email</p>',
+    const result = await transporter.sendMail({
+      from: '"Lab Inventory" <sanjayvenkat436@gmail.com>',
+      to: 'sanjayvenkat436@gmail.com',
+      subject: 'Test Email',
+      html: '<p>Test</p>',
     });
-    console.log('Resend result:', JSON.stringify(result));
+    console.log('Email result:', result);
     res.json({ success: true, result });
   } catch (err) {
-    console.log('Resend error:', err);
+    console.log('Email error:', err.message);
     res.json({ error: err.message });
   }
 });

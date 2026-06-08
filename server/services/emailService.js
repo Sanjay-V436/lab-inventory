@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const FROM = `"Lab Inventory" <${process.env.BREVO_USER}>`;
+const FROM = `"Lab Inventory" <rhisclab@gmail.com>`;
 
 // 1. Email to student — request submitted
 const sendRequestSubmittedEmail = async (student, refId, items) => {

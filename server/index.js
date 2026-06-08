@@ -32,7 +32,7 @@ app.get('/test-email', async (req, res) => {
   try {
     const result = await resend.emails.send({
       from: 'Lab Inventory <onboarding@resend.dev>',
-      to: 'your_gmail@gmail.com',
+      to: 'ch.en.u4cce2041@ch.students.amrita.edu',
       subject: 'Test',
       html: '<p>Test email</p>',
     });

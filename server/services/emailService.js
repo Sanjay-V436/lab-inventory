@@ -1,7 +1,16 @@
-const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require('nodemailer');
 
-const FROM = 'Lab Inventory <onboarding@resend.dev>';
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_PASS,
+  },
+});
+
+const FROM = `"Lab Inventory" <${process.env.BREVO_USER}>`;
 
 // 1. Email to student — request submitted
 const sendRequestSubmittedEmail = async (student, refId, items) => {
@@ -12,7 +21,7 @@ const sendRequestSubmittedEmail = async (student, refId, items) => {
     </tr>`
   ).join('');
 
-  await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to: student.email,
     subject: `Request Submitted — ${refId}`,
@@ -47,7 +56,7 @@ const sendNewRequestToAdmin = async (student, refId, items) => {
     </tr>`
   ).join('');
 
-  await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to: process.env.ADMIN_EMAIL,
     subject: `New Request — ${refId} from ${student.name}`,
@@ -89,7 +98,7 @@ const sendRequestAcceptedEmail = async (studentEmail, studentName, refId, items)
     </tr>`
   ).join('');
 
-  await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to: studentEmail,
     subject: `Request Accepted — ${refId}`,
@@ -123,7 +132,7 @@ const sendReturnReminderEmail = async (studentEmail, studentName, refId, returnD
     </tr>`
   ).join('');
 
-  await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to: studentEmail,
     subject: `Return Reminder — ${refId} due ${returnDate}`,

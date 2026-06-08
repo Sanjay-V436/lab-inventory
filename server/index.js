@@ -23,7 +23,19 @@ app.use('/api/requests',   require('./routes/requests'));
 app.use('/api/returns',    require('./routes/returns'));
 app.use('/api/history',    require('./routes/history'));
 // app.use('/api/purchases',  require('./routes/purchases'));
-
+app.get('/test-email', async (req, res) => {
+  const { sendRequestSubmittedEmail } = require('./services/emailService');
+  try {
+    await sendRequestSubmittedEmail(
+      { name: 'Test', email: 'ch.en.u4cce23041@ch.students.amrita.edu', roll_no: '123', department: 'CSE', mentor_name: 'Prof X', return_date: '2026-06-10' },
+      'LAB-TEST-001',
+      [{ name: 'Arduino', quantity: 2 }]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
 const PORT = process.env.PORT || 5000;
 require('./jobs/returnReminder');
 require('./jobs/keepAlive');

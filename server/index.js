@@ -24,15 +24,22 @@ app.use('/api/returns',    require('./routes/returns'));
 app.use('/api/history',    require('./routes/history'));
 // app.use('/api/purchases',  require('./routes/purchases'));
 app.get('/test-email', async (req, res) => {
-  const { sendRequestSubmittedEmail } = require('./services/emailService');
+  const { Resend } = require('resend');
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  
+  console.log('API KEY:', process.env.RESEND_API_KEY);
+  
   try {
-    await sendRequestSubmittedEmail(
-      { name: 'Test', email: 'ch.en.u4cce23041@ch.students.amrita.edu', roll_no: '123', department: 'CSE', mentor_name: 'Prof X', return_date: '2026-06-10' },
-      'LAB-TEST-001',
-      [{ name: 'Arduino', quantity: 2 }]
-    );
-    res.json({ success: true });
+    const result = await resend.emails.send({
+      from: 'Lab Inventory <onboarding@resend.dev>',
+      to: 'your_gmail@gmail.com',
+      subject: 'Test',
+      html: '<p>Test email</p>',
+    });
+    console.log('Resend result:', JSON.stringify(result));
+    res.json({ success: true, result });
   } catch (err) {
+    console.log('Resend error:', err);
     res.json({ error: err.message });
   }
 });

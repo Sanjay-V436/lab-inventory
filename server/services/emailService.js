@@ -1,16 +1,7 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.BREVO_USER,
-    pass: process.env.BREVO_PASS,
-  },
-});
-
-const FROM = `"Lab Inventory" <rhisclab@gmail.com>`;
+const FROM = 'rhisclab@gmail.com';
 
 // 1. Email to student — request submitted
 const sendRequestSubmittedEmail = async (student, refId, items) => {
@@ -21,7 +12,7 @@ const sendRequestSubmittedEmail = async (student, refId, items) => {
     </tr>`
   ).join('');
 
-  await transporter.sendMail({
+  await sgMail.send({
     from: FROM,
     to: student.email,
     subject: `Request Submitted — ${refId}`,
@@ -56,7 +47,7 @@ const sendNewRequestToAdmin = async (student, refId, items) => {
     </tr>`
   ).join('');
 
-  await transporter.sendMail({
+  await sgMail.send({
     from: FROM,
     to: process.env.ADMIN_EMAIL,
     subject: `New Request — ${refId} from ${student.name}`,
@@ -98,7 +89,7 @@ const sendRequestAcceptedEmail = async (studentEmail, studentName, refId, items)
     </tr>`
   ).join('');
 
-  await transporter.sendMail({
+  await sgMail.send({
     from: FROM,
     to: studentEmail,
     subject: `Request Accepted — ${refId}`,
@@ -132,7 +123,7 @@ const sendReturnReminderEmail = async (studentEmail, studentName, refId, returnD
     </tr>`
   ).join('');
 
-  await transporter.sendMail({
+  await sgMail.send({
     from: FROM,
     to: studentEmail,
     subject: `Return Reminder — ${refId} due ${returnDate}`,

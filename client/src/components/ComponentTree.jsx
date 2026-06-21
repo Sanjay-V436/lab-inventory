@@ -31,15 +31,15 @@ const ComponentNode = ({ node, cart, onAdd, onRemove, onQuantityChange }) => {
             {isInCart ? (
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => onRemove(node.id)}
-                  className="w-6 h-6 rounded-full border border-gray-300
-                             flex items-center justify-center
-                             hover:bg-red-50 hover:border-red-300
-                             text-gray-500 hover:text-red-500
-                             transition-colors"
-                >
-                  <Minus size={12} />
-                </button>
+  onClick={() => onQuantityChange(node.id, cartItem.quantity - 1)}
+  className="w-6 h-6 rounded-full border border-gray-300
+             flex items-center justify-center
+             hover:bg-red-50 hover:border-red-300
+             text-gray-500 hover:text-red-500
+             transition-colors"
+>
+  <Minus size={12} />
+</button>
                 <span className="text-sm font-semibold w-6 text-center">
                   {cartItem.quantity}
                 </span>

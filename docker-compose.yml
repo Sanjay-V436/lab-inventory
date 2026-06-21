@@ -23,7 +23,7 @@ services:
     environment:
       PORT: 5000
       DATABASE_URL: postgresql://postgres:sanjay2006@db:5432/lab_inventory
-      JWT_SECRET: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJsYWJhZG1pbiIsImlhdCI6MTc3MzUwNTYzMCwiZXhwIjoxNzczNTM0NDMwfQ.VGvEhB3KHu9iRiFiZZWeQPzNVdATIIQtgmaUpaH3lBM
+      JWT_SECRET: fe92abe231660c331faa5d9d81a80bc39fa38178744149fac5056f9724564146ba9b7420c5d611f8f0d0b8a37e72d4f899adb184e7d526e4b6478de6eaa0747d
       CLIENT_URL: http://localhost
       CLOUDINARY_CLOUD_NAME: dtuueykhx
       CLOUDINARY_API_KEY: 377183914961547
